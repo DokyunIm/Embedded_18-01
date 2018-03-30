@@ -5,12 +5,17 @@ import math
 import os
 import sys
 
+#getIP : get Device IP (but, it may be not accurate)
+#return : IP Address
 def getIP():
   response_data = requests.get('http://ip.jsontest.com/')
   device_ip = json.loads(response_data.text)
   #print("device IP : "+device_ip['ip'])
   return device_ip['ip'];
 
+#getGeolocation : get address using ip address
+#                 and get longitude and latitude using address
+#return : longitude, latitude
 def getGeolocation(device_ip):
   global key
   url = 'http://whois.kisa.or.kr/openapi/whois.jsp?query='+device_ip+'&key='+key['whois_key']+'&answer=json'
@@ -36,6 +41,8 @@ def getGeolocation(device_ip):
   #print(geolocation)
   return geolocation
 
+#getAddress : get detail address(dong/myun) using longitude, latitude
+#return : address(dong/myun)
 def getAddress(longitude, latitude):
   global client_id
   global client_secret
@@ -50,7 +57,9 @@ def getAddress(longitude, latitude):
   #print("detail address : "+address)
   return address
 
-def getTM(address): ## get TM geolocation
+#getTM : get TM location using address(dong/myun)
+#return : TM location
+def getTM(address):
   global key
   url = "http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getTMStdrCrdnt?umdName="+address+"&pageNo=1&numOfRows=10&ServiceKey="+key['openapi_key']
   response_data = requests.get(url)
@@ -64,6 +73,8 @@ def getTM(address): ## get TM geolocation
   #print(tmdata)
   return tmdata
 
+#getStation : get Measuring station name using TM location
+#return : station name
 def getStation(tm):
   global key
   url ="http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getNearbyMsrstnList?tmX="+tm['tmx']+"&tmY="+tm['tmy']+"&pageNo=1&numOfRows=10&ServiceKey="+key['openapi_key']
@@ -73,6 +84,8 @@ def getStation(tm):
   #print("near station name : "+station_name)
   return station_name
 
+#getAirData : get Air data using Open API(www.data.go.kr)
+#return : air data(json)
 def getAirData(station):
   global key
   url ="http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?stationName="+station+"&dataTerm=month&pageNo=1&numOfRows=10&ServiceKey="+key['openapi_key']+"&ver=1.3"
@@ -89,7 +102,8 @@ def getAirData(station):
   #print(air_data)
   return air_data
   
-  
+#getAir : main procedure
+#return : air data
 def getAir():
   global key
   key_file = open('./key.secret', 'r')

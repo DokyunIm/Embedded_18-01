@@ -1,3 +1,4 @@
+##Mini Project
 import threading
 import time
 import notify as Notify # Send Notification(Email)
