@@ -3,7 +3,6 @@ import threading
 import time
 import notify as Notify # Send Notification(Email)
 import airinfo as Air # Get Air Data
-import led as LED
 ##################################################
 import RPi.GPIO as GPIO
 import time
@@ -12,7 +11,8 @@ import time
 
 def sendNotification():
   Notify.send('imjoshua9316dev@gmail.com', 'imjoshua9316@gmail.com')
-  print("success to send Notification")    
+  print("success to send Notification")
+  time.sleep(30)
   
 def getAirData():
   global air_data
@@ -65,24 +65,27 @@ def controlUltraSensor():
     
     if(abs(time_now - time_prev) > 3.0):
         detect_count = 0
-        time_prev = time_now
+        time_prev = time.time()
     elif(sts_mode == 0 and detect_count >= 5):
-      print("normal mode(val: "+str(distance_now)+")")
+      print("home mode(val: "+str(distance_now)+")")
       #turn on led - air condition info
-      detect_count = 0
-      
       if(air_data['khai_grade'] == '1'):
-        controlLED(0,0,70)
+        controlLED(0,0,70, 4, 1)
       elif(air_data['khai_grade'] == '2'):
-        controlLED(0,70,0)
+        controlLED(0,70,0, 4, 1)
       elif(air_data['khai_grade'] == '3'):
-        controlLED(70,70,0)
+        controlLED(70,70,0, 4, 1)
       elif(air_data['khai_grade'] == '4'):
-        cotrolLED(70,0,0)
+        cotrolLED(70,0,0, 4, 1)
+      detect_count = 0
+      time_prev = time.time()
     elif(sts_mode == 1 and detect_count >= 5):
       print("detect mode(val: "+str(distance_now)+")")
       #turn on led and send notification
+      controlLED(90,0,0, 1, 10)
+      sendNotification()
       detect_count = 0
+      time_prev = time.time()
     
 def controlButton():
   global sts_mode
@@ -110,13 +113,13 @@ def controlButton():
         push_time = 0.0
         if(sts_mode != sts_button): 
             sts_mode = sts_button
-            if(sts_mode == 0): #normal mode
-                print("change to normal mode")
+            if(sts_mode == 0): #home mode
+                print("change to home mode")
             elif(sts_mode == 1): #detect mode
                 print("change to detect mode")
 
 
-def controlLED(r, g, b):
+def controlLED(r, g, b, t, n):
     LED_POWER=14
     RED = 4
     GREEN = 3
@@ -135,11 +138,21 @@ def controlLED(r, g, b):
     LED_R.start(0)
     LED_G.start(0)
     LED_B.start(0)
-
-    LED_R.ChangeDutyCycle(r)
-    LED_G.ChangeDutyCycle(g)
-    LED_B.ChangeDutyCycle(b)
-    time.sleep(5)
+    if(n == 1):
+        LED_R.ChangeDutyCycle(r)
+        LED_G.ChangeDutyCycle(g)
+        LED_B.ChangeDutyCycle(b)
+        time.sleep(t)
+    else:
+        for i in range(n):
+            LED_R.ChangeDutyCycle(r)
+            LED_G.ChangeDutyCycle(g)
+            LED_B.ChangeDutyCycle(b)
+            time.sleep(t/2)
+            LED_R.ChangeDutyCycle(0)
+            LED_G.ChangeDutyCycle(0)
+            LED_B.ChangeDutyCycle(0)
+            time.sleep(t/2)
 
   
 
@@ -161,12 +174,10 @@ if __name__ == '__main__': #start main procedure
   }
   
   #set threads
-  t_notify = threading.Thread(target=sendNotification)
   t_getAirData = threading.Thread(target=getAirData)
   t_ultra_sensor = threading.Thread(target=controlUltraSensor)
   t_button = threading.Thread(target=controlButton)
-  t_notify.daemon = True # when Main Thread exited, is exited
-  t_getAirData.daemon = True
+  t_getAirData.daemon = True # when Main Thread exited, is exited
   t_ultra_sensor.daemon = True
   t_button.daemon = True
   
