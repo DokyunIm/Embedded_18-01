@@ -5,6 +5,10 @@ import math
 import os
 import sys
 
+global key
+key_file = open('./key.secret', 'r')
+key = json.loads(key_file.read())
+
 #getIP : get Device IP (but, it may be not accurate)
 #return : IP Address
 def getIP():
@@ -44,8 +48,7 @@ def getGeolocation(device_ip):
 #getAddress : get detail address(dong/myun) using longitude, latitude
 #return : address(dong/myun)
 def getAddress(longitude, latitude):
-  global client_id
-  global client_secret
+  global key
   url ="https://openapi.naver.com/v1/map/reversegeocode?encoding=utf-8&coordType=latlng&query="+longitude+","+latitude+""
   headers = {
     'X-Naver-Client-Id': key['client_id'],
@@ -116,10 +119,10 @@ def getAir():
   air_data = getAirData(station)
   return air_data
 
-""" # debugging code
+""" # debugging code"""
 geolocation = getGeolocation(str(getIP()))
 address = getAddress(str(geolocation['longitude']), str(geolocation['latitude']))
 tmdata = getTM(address)
 station = getStation(tmdata)
 air_data = getAirData(station)
-"""  
+""""""
