@@ -18,3 +18,4 @@ def send(From_Addr, To_Addr):
   smtp_gmail.login(msg['From'], key['auth_key'])
   smtp_gmail.sendmail(msg['From'], msg['To'], msg.as_string())
   smtp_gmail.quit()
+

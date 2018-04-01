@@ -2,8 +2,10 @@ import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM)
 
-TRIG=23
-ECHO=24
+#TRIG=23
+#ECHO=24
+TRIG=18
+ECHO=21
 
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
@@ -26,7 +28,7 @@ while True:
     distance = pulse_duration * 17150
     distance = round(distance, 2)
     
-    print "Distance:",distance,"cm"
+    print ("Distance:",distance,"cm")
     #GPIO.cleanup()
     time.sleep(1)
 

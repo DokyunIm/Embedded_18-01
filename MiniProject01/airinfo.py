@@ -117,12 +117,12 @@ def getAir():
   tmdata = getTM(address)
   station = getStation(tmdata)
   air_data = getAirData(station)
-  return air_data
+  #return air_data
 
-""" # debugging code"""
+""" # debugging code
 geolocation = getGeolocation(str(getIP()))
 address = getAddress(str(geolocation['longitude']), str(geolocation['latitude']))
 tmdata = getTM(address)
 station = getStation(tmdata)
 air_data = getAirData(station)
-""""""
+"""
