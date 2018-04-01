@@ -71,9 +71,14 @@ def controlUltraSensor():
       #turn on led - air condition info
       detect_count = 0
       
-      if(air_data['khai_grade'] == 1):
+      if(air_data['khai_grade'] == '1'):
         controlLED(0,0,70)
-    elif(air_data['khai_grade'] == 2):
+      elif(air_data['khai_grade'] == '2'):
+        controlLED(0,70,0)
+      elif(air_data['khai_grade'] == '3'):
+        controlLED(70,70,0)
+      elif(air_data['khai_grade'] == '4'):
+        cotrolLED(70,0,0)
     elif(sts_mode == 1 and detect_count >= 5):
       print("detect mode(val: "+str(distance_now)+")")
       #turn on led and send notification
