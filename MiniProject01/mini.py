@@ -22,12 +22,13 @@ def getAirData():
 
 def controlUltraSensor():
   global sts_mode
-  US_TRIG=23
-  US_ECHO=24
+  US_TRIG=18
+  US_ECHO=21
   GPIO.setup(US_TRIG, GPIO.OUT)
   GPIO.setip(US_ECHO, GPIO.IN)
   distance_now = 0.0
   distance_prev = 0.0
+  detect_count = 0
   time.sleep(0.3)
   
   while True:
@@ -44,17 +45,31 @@ def controlUltraSensor():
     pulse_duration = pulse_end - pulse_start
     
     distance_now = pulse_duration*17150
-    distance_now = round(US_distance, 2)
+    distance_now = round(distance_now, 2)
     
-    if(sts_mode == 0):
-      print("normal mode")
-    elif(sts_mode == 1):
-      print("detect mode")
+    if(distance_prev == 0.0 and distance_now > 0.0):
+      distance_prev = distance_now
+    
+    elif(distance_prev > 0.0 and distance_now > 0.0):
+      if(abs(distance_now - distance_prev) > 60.0):
+        detect_count += 1
+        distance_prev = distance_now
+      
+    
+    
+    if(sts_mode == 0 and detect_count >= 1):
+      print("normal mode(val: "+distance_now+")")
+      #turn on led - air condition info
+      detect_count = 0
+    elif(sts_mode == 1 and detect_count >= 2):
+      print("detect mode(val: "+distance_now+")")
+      #turn on led and send notification
+      detect_count = 0
     
 def controlButton():
   global sts_mode
   global sts_button
-  BTN_PIN = 24
+  BTN_PIN = 23
   GPIO.setmode(GPIO.BCM)
   GPIO.setup(BTN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
   button_value = GPIO.input(BTN_PIN)
@@ -110,12 +125,16 @@ if __name__ == '__main__': #start main procedure
   t_ultra_sensor.daemon = True
   t_button.daemon = True
   
-  t_notify.start()
+  
+  #t_notify.start()
+  print("getAirData thread starting...")
   t_getAirData.start()
+  print("Ultra Sensor thread starting...")
   t_ultra_sensor.start()
+  print("Button thread starting...")
   t_button()
   
-  print("getAirData starting...")
+  
   t_getAirData.start()
   
   count = 1
@@ -125,5 +144,5 @@ if __name__ == '__main__': #start main procedure
     print("통합대기환경등급 : "+str(air_data['khai_grade']))
     print(threading.activeCount())
     count += 1
-    time.sleep(5)
+    time.sleep(10)
   
