@@ -70,13 +70,13 @@ def controlUltraSensor():
       print("home mode(val: "+str(distance_now)+")")
       #turn on led - air condition info
       if(air_data['khai_grade'] == '1'):
-        controlLED(0,0,70, 4, 1)
+        controlLED(0,0,100, 4, 1)
       elif(air_data['khai_grade'] == '2'):
-        controlLED(0,70,0, 4, 1)
+        controlLED(0,100,0, 4, 1)
       elif(air_data['khai_grade'] == '3'):
-        controlLED(70,70,0, 4, 1)
+        controlLED(100,100,0, 4, 1)
       elif(air_data['khai_grade'] == '4'):
-        cotrolLED(70,0,0, 4, 1)
+        cotrolLED(100,0,0, 4, 1)
       detect_count = 0
       time_prev = time.time()
     elif(sts_mode == 1 and detect_count >= 5):
@@ -93,7 +93,7 @@ def controlButton():
   BTN_PIN = 23
   GPIO.setwarnings(False)
   GPIO.setmode(GPIO.BCM)
-  GPIO.setup(BTN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+  GPIO.setup(BTN_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
   button_value = GPIO.input(BTN_PIN)
   push_start = 0.0
   push_end = 0.0
@@ -115,8 +115,10 @@ def controlButton():
             sts_mode = sts_button
             if(sts_mode == 0): #home mode
                 print("change to home mode")
+                time.sleep(1.5)
             elif(sts_mode == 1): #detect mode
                 print("change to detect mode")
+                time.sleep(1.5)
 
 
 def controlLED(r, g, b, t, n):
@@ -124,7 +126,7 @@ def controlLED(r, g, b, t, n):
     RED = 4
     GREEN = 3
     BLUE = 2
-    FREQ = 100
+    FREQ = 255
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(LED_POWER, GPIO.OUT)
@@ -191,11 +193,15 @@ if __name__ == '__main__': #start main procedure
   t_button.start()
   
   count = 1
-  while True:
-    print("main Thread Running...("+str(count)+")")
-    print("통합대기환경수치 : "+str(air_data['khai_value']))
-    print("통합대기환경등급 : "+str(air_data['khai_grade']))
-    #print(threading.activeCount())
-    count += 1
-    time.sleep(10)
+  try:
+    while True:
+        print("main Thread Running...("+str(count)+")")
+        print("통합대기환경수치 : "+str(air_data['khai_value']))
+        print("통합대기환경등급 : "+str(air_data['khai_grade']))
+        #print(threading.activeCount())
+        count += 1
+        time.sleep(10)
+
   
+  except KeyboardInterrupt:
+      GPIO.cleanup()
